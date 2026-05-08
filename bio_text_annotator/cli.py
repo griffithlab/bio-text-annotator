@@ -14,15 +14,15 @@ def parse_args():
     )
 
     parser.add_argument(
-        "--output",
-        default="./outputs/report.json",
-        help="Path to output report (default: ./outputs/report.json)"
+        "--source-id",
+        required=True,
+        help="Identifier for the publication/source being processed"
     )
 
     parser.add_argument(
-        "--source-id",
-        default=None,
-        help="Optional source identifier (defaults to directory name)"
+        "--output",
+        default="./outputs/report.json",
+        help="Path to output report (default: ./outputs/report.json)"
     )
 
     parser.add_argument(

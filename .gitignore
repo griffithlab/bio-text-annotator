@@ -30,3 +30,6 @@ dist/
 
 # Test script
 test.sh
+
+# Outputs
+outputs/

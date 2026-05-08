@@ -12,7 +12,7 @@ from bio_text_annotator.reporting.writer import write_report
 def run_pipeline(
     input_dir: str,
     output_path: str,
-    source_id: str | None = None,
+    source_id: str,
     recursive: bool = False,
     formats: list[str] = None,
     verbose: bool = False
@@ -32,9 +32,9 @@ def run_pipeline(
 
     # 2. Initialize annotators
     annotators = [
-        GeneAnnotator(),
-        DiseaseAnnotator(),
-        ChemicalAnnotator(),
+        #GeneAnnotator(),
+        #DiseaseAnnotator(),
+        #ChemicalAnnotator(),
         VariantAnnotator()
     ]
 
@@ -56,7 +56,7 @@ def run_pipeline(
     # 4. Aggregate results
     report = aggregate_entities(
         entities=all_entities,
-        source_id=source_id or input_dir.split("/")[-1]
+        source_id=source_id
     )
 
     # 5. Write output

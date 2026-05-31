@@ -47,11 +47,15 @@ def run_pipeline(
 
         text = extract_text(doc_path)
         chunks = chunk_text(text)
-
-        for chunk in chunks:
-            for annotator in annotators:
-                entities = annotator.extract(chunk)
+        
+        for annotator in annotators:
+            if annotator.requires_full_document:
+                entities = annotator.extract(text)
                 all_entities.extend(entities)
+            else:
+                for chunk in chunks:
+                    entities = annotator.extract(chunk)
+                    all_entities.extend(entities)
 
     # 4. Aggregate results
     report = aggregate_entities(

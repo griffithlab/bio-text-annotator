@@ -5,8 +5,8 @@ import urllib.request
 MODEL_DIR = Path(__file__).parent / "CRF"
 
 MODELS = {
-    "model1.Model": "https://github.com/griffithlab/bio-text-annotator/releases/download/v1.0.0/MentionExtractionUB.fulltext.Model",
-    "model2.Model": "https://github.com/griffithlab/bio-text-annotator/releases/download/v1.0.0/MentionExtractionUB.Model",
+    "MentionExtractionUB.fulltext.Model": "https://github.com/griffithlab/bio-text-annotator/releases/download/v1.0.0/MentionExtractionUB.fulltext.Model",
+    "MentionExtractionUB.Model": "https://github.com/griffithlab/bio-text-annotator/releases/download/v1.0.0/MentionExtractionUB.Model",
 }
 
 

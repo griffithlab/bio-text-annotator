@@ -5,18 +5,11 @@ def aggregate_entities(
     entities: list[dict],
     source_id: str
 ) -> dict:
-    """
-    Aggregate extracted entities into a report structure.
 
-    Args:
-        entities: List of extracted entity dictionaries.
-        source_id: Identifier for the processed source.
-
-    Returns:
-        Aggregated report dictionary.
-    """
-
-    counts = defaultdict(int)
+    grouped = defaultdict(lambda: {
+        "count": 0,
+        "mentions": []
+    })
 
     for entity in entities:
         key = (
@@ -24,22 +17,36 @@ def aggregate_entities(
             entity["text"]
         )
 
-        counts[key] += 1
+        grouped[key]["count"] += 1
+
+        mention = {
+            "text": entity["text"],
+            "start": entity.get("start"),
+            "end": entity.get("end"),
+        }
+
+        # preserve optional fields
+        if "subtype" in entity:
+            mention["subtype"] = entity["subtype"]
+
+        if "normalized_id" in entity:
+            mention["normalized_id"] = entity["normalized_id"]
+
+        grouped[key]["mentions"].append(mention)
 
     aggregated_entities = []
 
-    for (entity_type, entity_text), count in sorted(counts.items()):
+    for (entity_type, entity_text), data in sorted(grouped.items()):
         aggregated_entities.append({
             "type": entity_type,
             "text": entity_text,
-            "count": count
+            "count": data["count"],
+            "mentions": data["mentions"]
         })
 
-    report = {
+    return {
         "source_id": source_id,
         "total_entities": len(entities),
         "unique_entities": len(aggregated_entities),
         "entities": aggregated_entities
     }
-
-    return report

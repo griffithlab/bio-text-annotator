@@ -8,6 +8,7 @@ from bio_text_annotator.annotators.variant import VariantAnnotator
 from bio_text_annotator.reporting.aggregator import aggregate_entities
 from bio_text_annotator.reporting.writer import write_report
 
+# TODO: Modify logic and test tmvar variant extraction
 
 def run_pipeline(
     input_dir: str,

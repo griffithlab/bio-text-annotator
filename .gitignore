@@ -33,3 +33,6 @@ test.sh
 
 # Outputs
 outputs/
+
+# Model files
+*.Model

@@ -2,12 +2,14 @@ from pathlib import Path
 import subprocess
 import tempfile
 
+from bio_text_annotator.external.tmvar.model_manager import ensure_models
 from bio_text_annotator.preprocessing.bioc import text_to_bioc
 
 
 class TMVarService:
-
     def __init__(self):
+        ensure_models()
+        
         self.tmvar_root = (
             Path(__file__).resolve().parent
         )

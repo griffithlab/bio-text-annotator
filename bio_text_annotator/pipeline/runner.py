@@ -8,7 +8,6 @@ from bio_text_annotator.annotators.variant import VariantAnnotator
 from bio_text_annotator.reporting.aggregator import aggregate_entities
 from bio_text_annotator.reporting.writer import write_report
 
-# TODO: Modify logic and test tmvar variant extraction
 
 def run_pipeline(
     input_dir: str,
@@ -16,7 +15,8 @@ def run_pipeline(
     source_id: str,
     recursive: bool = False,
     formats: list[str] = None,
-    verbose: bool = False
+    verbose: bool = False,
+    keep_temp: bool = False
 ):
     if formats is None:
         formats = ["pdf"]
@@ -36,7 +36,7 @@ def run_pipeline(
         #GeneAnnotator(),
         #DiseaseAnnotator(),
         #ChemicalAnnotator(),
-        VariantAnnotator()
+        VariantAnnotator(keep_temp=keep_temp)
     ]
 
     all_entities = []

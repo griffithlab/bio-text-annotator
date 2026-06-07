@@ -44,6 +44,12 @@ def parse_args():
         help="Enable verbose logging"
     )
 
+    parser.add_argument(
+        "--keep-temp",
+        action="store_true",
+        help="Keep temporary files generated during processing (for debugging)"
+    )
+
     return parser.parse_args()
 
 
@@ -56,7 +62,8 @@ def main():
         source_id=args.source_id,
         recursive=args.recursive,
         formats=args.formats,
-        verbose=args.verbose
+        verbose=args.verbose,
+        keep_temp=args.keep_temp
     )
 
 

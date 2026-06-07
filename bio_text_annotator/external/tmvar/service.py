@@ -7,12 +7,14 @@ from bio_text_annotator.preprocessing.bioc import text_to_bioc
 
 
 class TMVarService:
-    def __init__(self):
+    def __init__(self, keep_temp: bool = False):
         ensure_models()
 
         self.tmvar_root = Path(__file__).resolve().parent
 
         self.jar_path = self.tmvar_root / "tmVar.jar"
+
+        self.keep_temp = keep_temp
 
         if not self.jar_path.exists():
             raise FileNotFoundError(
@@ -33,41 +35,45 @@ class TMVarService:
         input_dir.mkdir(parents=True)
         output_dir.mkdir()
 
-        bioc_path = input_dir / "document.xml"
+        try:
+            bioc_path = input_dir / "document.xml"
 
-        bioc_path.write_text(
-            text_to_bioc(text),
-            encoding="utf-8"
-        )
-
-        result = subprocess.run(
-            [
-                "java",
-                "-Xmx5G",
-                "-Xms5G",
-                "-cp",
-                "tmVar.jar:lib/*:CRF:.",
-                "tmVarlib.tmVar",
-                str(input_dir),
-                str(output_dir),
-            ],
-            cwd=self.tmvar_root,
-            text=True,
-            capture_output=True,
-        )
-
-        if result.returncode != 0:
-            print("TMVar STDOUT:")
-            print(result.stdout)
-
-            print("TMVar STDERR:")
-            print(result.stderr)
-
-            raise RuntimeError(
-                f"TMVar failed with exit code {result.returncode}"
+            bioc_path.write_text(
+                text_to_bioc(text),
+                encoding="utf-8"
             )
 
-        return self._parse_output(output_dir)
+            result = subprocess.run(
+                [
+                    "java",
+                    "-Xmx5G",
+                    "-Xms5G",
+                    "-cp",
+                    "tmVar.jar:lib/*:CRF:.",
+                    "tmVarlib.tmVar",
+                    str(input_dir),
+                    str(output_dir),
+                ],
+                cwd=self.tmvar_root,
+                text=True,
+                capture_output=True,
+            )
+
+            if result.returncode != 0:
+                print("TMVar STDOUT:")
+                print(result.stdout)
+
+                print("TMVar STDERR:")
+                print(result.stderr)
+
+                raise RuntimeError(
+                    f"TMVar failed with exit code {result.returncode}"
+                )
+
+            return self._parse_output(output_dir)
+        finally:
+            if not self.keep_temp and self.work_dir.exists():
+                shutil.rmtree(self.work_dir)
 
     def _parse_output(self, output_dir):
         output_file = output_dir / "document.xml.PubTator"

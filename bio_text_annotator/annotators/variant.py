@@ -7,8 +7,8 @@ class VariantAnnotator(BaseAnnotator):
     entity_type = "variant"
     requires_full_document = True
 
-    def __init__(self):
-        self.tmvar = TMVarService()
+    def __init__(self, keep_temp: bool = False):
+        self.tmvar = TMVarService(keep_temp=keep_temp)
 
     def extract(self, text: str):
         return self.tmvar.annotate(text)

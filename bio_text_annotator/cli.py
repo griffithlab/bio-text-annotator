@@ -50,6 +50,13 @@ def parse_args():
         help="Keep temporary files generated during processing (for debugging)"
     )
 
+    parser.add_argument(
+        "--output-mode",
+        choices=["document", "flat"],
+        default="document",
+        help="Output structure: per-document or fully aggregated"
+    )
+
     return parser.parse_args()
 
 
@@ -63,7 +70,8 @@ def main():
         recursive=args.recursive,
         formats=args.formats,
         verbose=args.verbose,
-        keep_temp=args.keep_temp
+        keep_temp=args.keep_temp,
+        output_mode=args.output_mode
     )
 
 

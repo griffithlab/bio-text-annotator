@@ -16,7 +16,8 @@ def run_pipeline(
     recursive: bool = False,
     formats: list[str] = None,
     verbose: bool = False,
-    keep_temp: bool = False
+    keep_temp: bool = False,
+    output_mode: str = "document"
 ):
     if formats is None:
         formats = ["pdf"]
@@ -39,7 +40,7 @@ def run_pipeline(
         VariantAnnotator(keep_temp=keep_temp)
     ]
 
-    all_entities = []
+    documents = []
 
     # 3. Process each document
     for doc_path in docs:
@@ -48,20 +49,29 @@ def run_pipeline(
 
         text = extract_text(doc_path)
         chunks = chunk_text(text)
-        
+
+        doc_entities = []
+
         for annotator in annotators:
             if annotator.requires_full_document:
                 entities = annotator.extract(text)
-                all_entities.extend(entities)
             else:
+                entities = []
                 for chunk in chunks:
-                    entities = annotator.extract(chunk)
-                    all_entities.extend(entities)
+                    entities.extend(annotator.extract(chunk))
+
+            doc_entities.extend(entities)
+
+        documents.append({
+            "doc_id": str(doc_path),
+            "entities": doc_entities
+        })
 
     # 4. Aggregate results
     report = aggregate_entities(
-        entities=all_entities,
-        source_id=source_id
+        documents=documents,
+        source_id=source_id,
+        output_mode=output_mode
     )
 
     # 5. Write output

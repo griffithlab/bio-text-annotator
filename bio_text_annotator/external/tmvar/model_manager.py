@@ -28,9 +28,6 @@ def ensure_models():
         url = MODELS[filename]
         destination = MODEL_DIR / filename
 
-        urllib.request.urlretrieve(
-            url,
-            destination
-        )
+        urllib.request.urlretrieve(url, destination)
 
     print("[INFO] TMVar models installed.")

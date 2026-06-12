@@ -2,9 +2,7 @@ from pathlib import Path
 
 
 def load_documents(
-    input_dir: str,
-    recursive: bool = False,
-    formats: list[str] | None = None
+    input_dir: str, recursive: bool = False, formats: list[str] | None = None
 ) -> list[Path]:
     """
     Load documents from a directory matching the specified formats.
@@ -30,10 +28,7 @@ def load_documents(
         raise NotADirectoryError(f"Input path is not a directory: {input_dir}")
 
     # Normalize extensions
-    formats = {
-        ext.lower().lstrip(".")
-        for ext in formats
-    }
+    formats = {ext.lower().lstrip(".") for ext in formats}
 
     documents = []
 

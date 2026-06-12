@@ -2,10 +2,7 @@ from collections import defaultdict
 
 
 def _aggregate_flat(entities: list[dict], source_id: str) -> dict:
-    grouped = defaultdict(lambda: {
-        "count": 0,
-        "mentions": []
-    })
+    grouped = defaultdict(lambda: {"count": 0, "mentions": []})
 
     for entity in entities:
         key = (entity["type"], entity["text"])
@@ -31,7 +28,7 @@ def _aggregate_flat(entities: list[dict], source_id: str) -> dict:
             "type": etype,
             "text": etext,
             "count": data["count"],
-            "mentions": data["mentions"]
+            "mentions": data["mentions"],
         }
         for (etype, etext), data in sorted(grouped.items())
     ]
@@ -40,8 +37,9 @@ def _aggregate_flat(entities: list[dict], source_id: str) -> dict:
         "source_id": source_id,
         "total_entities": len(entities),
         "unique_entities": len(aggregated_entities),
-        "entities": aggregated_entities
+        "entities": aggregated_entities,
     }
+
 
 def _aggregate_by_document(documents: list[dict], source_id: str) -> dict:
     output_docs = []
@@ -50,10 +48,7 @@ def _aggregate_by_document(documents: list[dict], source_id: str) -> dict:
     global_keys = set()
 
     for doc in documents:
-        grouped = defaultdict(lambda: {
-            "count": 0,
-            "mentions": []
-        })
+        grouped = defaultdict(lambda: {"count": 0, "mentions": []})
 
         for entity in doc["entities"]:
             key = (entity["type"], entity["text"])
@@ -81,29 +76,30 @@ def _aggregate_by_document(documents: list[dict], source_id: str) -> dict:
                 "type": etype,
                 "text": etext,
                 "count": data["count"],
-                "mentions": data["mentions"]
+                "mentions": data["mentions"],
             }
             for (etype, etext), data in sorted(grouped.items())
         ]
 
-        output_docs.append({
-            "doc_id": doc["doc_id"],
-            "total_entities": len(doc["entities"]),
-            "unique_entities": len(aggregated),
-            "entities": aggregated
-        })
+        output_docs.append(
+            {
+                "doc_id": doc["doc_id"],
+                "total_entities": len(doc["entities"]),
+                "unique_entities": len(aggregated),
+                "entities": aggregated,
+            }
+        )
 
     return {
         "source_id": source_id,
         "total_entities": total_entities,
         "unique_entities": len(global_keys),
-        "documents": output_docs
+        "documents": output_docs,
     }
 
+
 def aggregate_entities(
-    documents: list[dict],
-    source_id: str,
-    output_mode: str = "document"
+    documents: list[dict], source_id: str, output_mode: str = "document"
 ) -> dict:
 
     if output_mode == "flat":

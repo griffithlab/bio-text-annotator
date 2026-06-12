@@ -10,51 +10,51 @@ def parse_args():
     parser.add_argument(
         "--input-dir",
         required=True,
-        help="Directory containing documents for a single source"
+        help="Directory containing documents for a single source",
     )
 
     parser.add_argument(
         "--source-id",
         required=True,
-        help="Identifier for the publication/source being processed"
+        help="Identifier for the publication/source being processed",
     )
 
     parser.add_argument(
         "--output",
         default="./outputs/report.json",
-        help="Path to output report (default: ./outputs/report.json)"
+        help="Path to output report (default: ./outputs/report.json)",
     )
 
     parser.add_argument(
-        "--recursive",
-        action="store_true",
-        help="Recursively search for documents"
+        "--recursive", action="store_true", help="Recursively search for documents"
     )
 
     parser.add_argument(
         "--formats",
         nargs="+",
         default=["pdf"],
-        help="File formats to include (default: pdf)"
+        help="File formats to include (default: pdf)",
     )
 
-    parser.add_argument(
-        "--verbose",
-        action="store_true",
-        help="Enable verbose logging"
-    )
+    parser.add_argument("--verbose", action="store_true", help="Enable verbose logging")
 
     parser.add_argument(
         "--keep-temp",
         action="store_true",
-        help="Keep temporary files generated during processing (for debugging)"
+        help="Keep temporary files generated during processing (for debugging)",
     )
 
     parser.add_argument(
         "--output-mode",
         choices=["document", "flat"],
         default="document",
-        help="Output structure: per-document or fully aggregated"
+        help="Output structure: per-document or fully aggregated",
+    )
+
+    parser.add_argument(
+        "--heap-size",
+        default="5G",
+        help="Java heap size for TMVar3 (e.g., 2G, 5G, 8G). Default: 5G",
     )
 
     return parser.parse_args()
@@ -71,7 +71,8 @@ def main():
         formats=args.formats,
         verbose=args.verbose,
         keep_temp=args.keep_temp,
-        output_mode=args.output_mode
+        output_mode=args.output_mode,
+        heap_size=args.heap_size,
     )
 
 

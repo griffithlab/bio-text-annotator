@@ -7,25 +7,21 @@ from bio_text_annotator.preprocessing.bioc import text_to_bioc
 
 
 class TMVarService:
-    def __init__(self, keep_temp: bool = False):
+    def __init__(self, keep_temp: bool = False, heap_size: str = "5G"):
         ensure_models()
 
         self.tmvar_root = Path(__file__).resolve().parent
-
         self.jar_path = self.tmvar_root / "tmVar.jar"
 
         self.keep_temp = keep_temp
+        self.heap_size = heap_size
 
         if not self.jar_path.exists():
-            raise FileNotFoundError(
-                f"Missing TMVar jar: {self.jar_path}"
-            )
+            raise FileNotFoundError(f"Missing TMVar jar: {self.jar_path}")
 
         self.work_dir = self.tmvar_root / "tmp"
 
     def annotate(self, text: str):
-        # TMVar expects its temporary files relative to its root directory.
-        # Clean previous run artifacts.
         if self.work_dir.exists():
             shutil.rmtree(self.work_dir)
 
@@ -38,16 +34,13 @@ class TMVarService:
         try:
             bioc_path = input_dir / "document.xml"
 
-            bioc_path.write_text(
-                text_to_bioc(text),
-                encoding="utf-8"
-            )
+            bioc_path.write_text(text_to_bioc(text), encoding="utf-8")
 
             result = subprocess.run(
                 [
                     "java",
-                    "-Xmx5G",
-                    "-Xms5G",
+                    f"-Xmx{self.heap_size}",
+                    f"-Xms{self.heap_size}",
                     "-cp",
                     "tmVar.jar:lib/*:CRF:.",
                     "tmVarlib.tmVar",
@@ -66,22 +59,28 @@ class TMVarService:
                 print("TMVar STDERR:")
                 print(result.stderr)
 
-                raise RuntimeError(
-                    f"TMVar failed with exit code {result.returncode}"
-                )
+                raise RuntimeError(f"TMVar failed with exit code {result.returncode}")
 
             return self._parse_output(output_dir)
+
         finally:
             if not self.keep_temp and self.work_dir.exists():
                 shutil.rmtree(self.work_dir)
 
-    def _parse_output(self, output_dir):
+    def _parse_output(self, output_dir: Path) -> list[dict]:
         output_file = output_dir / "document.xml.PubTator"
 
         if not output_file.exists():
-            raise FileNotFoundError(
-                f"TMVar output not found: {output_file}"
-            )
+            raise FileNotFoundError(f"TMVar output not found: {output_file}")
+
+        VARIANT_TYPES = {
+            "Mutation",
+            "DNAMutation",
+            "ProteinMutation",
+            "SNP",
+            "DNAAllele",
+            "Chromosome",
+        }
 
         entities = []
 
@@ -94,29 +93,42 @@ class TMVarService:
 
                 parts = line.split("\t")
 
-                # Header lines:
-                # document|abstract|text
                 if len(parts) < 6:
                     continue
 
-                document_id, start, end, text, entity_type, identifier = parts[:6]
+                document_id, start, end, mention_text, entity_type, normalized = parts[
+                    :6
+                ]
 
-                if entity_type not in {
-                    "DNAMutation",
-                    "ProteinMutation",
-                    "SNP",
-                    "DNAAllele",
-                }:
+                if entity_type not in VARIANT_TYPES:
                     continue
+
+                norm_fields = {}
+
+                for field in normalized.split("|"):
+                    if ":" in field:
+                        k, _, v = field.partition(":")
+                        norm_fields[k.strip()] = v.strip()
+
+                # TMVar2 uses compact formats like: c|SUB|A|233|G
+                # TMVar3 uses key/value fields like: MutationType:Substitution
+                normalized_parts = normalized.split("|")
+
+                if len(normalized_parts) >= 2 and normalized_parts[1]:
+                    subtype = normalized_parts[1]
+                else:
+                    subtype = entity_type
 
                 entities.append(
                     {
                         "type": "variant",
-                        "text": text,
+                        "text": mention_text,
                         "start": int(start),
                         "end": int(end),
-                        "subtype": entity_type,
-                        "normalized_id": identifier,
+                        "subtype": subtype,
+                        "normalized_id": normalized,
+                        "rs_id": norm_fields.get("RS#"),
+                        "gene_id": norm_fields.get("CorrespondingGene"),
                     }
                 )
 

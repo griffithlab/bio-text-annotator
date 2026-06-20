@@ -15,11 +15,9 @@ def _aggregate_flat(entities: list[dict], source_id: str) -> dict:
             "end": entity.get("end"),
         }
 
-        if "subtype" in entity:
-            mention["subtype"] = entity["subtype"]
-
-        if "normalized_id" in entity:
-            mention["normalized_id"] = entity["normalized_id"]
+        mention.update(
+            entity.get("metadata", {})
+        )
 
         grouped[key]["mentions"].append(mention)
 
@@ -63,11 +61,9 @@ def _aggregate_by_document(documents: list[dict], source_id: str) -> dict:
                 "end": entity.get("end"),
             }
 
-            if "subtype" in entity:
-                mention["subtype"] = entity["subtype"]
-
-            if "normalized_id" in entity:
-                mention["normalized_id"] = entity["normalized_id"]
+            mention.update(
+                entity.get("metadata", {})
+            )
 
             grouped[key]["mentions"].append(mention)
 

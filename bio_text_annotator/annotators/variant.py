@@ -11,4 +11,26 @@ class VariantAnnotator(BaseAnnotator):
         self.tmvar = TMVarService(keep_temp=keep_temp, heap_size=heap_size)
 
     def extract(self, text: str):
-        return self.tmvar.annotate(text)
+        results = self.tmvar.annotate(text)
+        entities = []
+
+        for item in results:
+            metadata = {}
+
+            if "subtype" in item:
+                metadata["subtype"] = item["subtype"]
+
+            if "normalized_id" in item:
+                metadata["normalized_id"] = item["normalized_id"]
+
+            entities.append(
+                {
+                    "type": self.entity_type,
+                    "text": item["text"],
+                    "start": item.get("start"),
+                    "end": item.get("end"),
+                    "metadata": metadata,
+                }
+            )
+
+        return entities

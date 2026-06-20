@@ -6,5 +6,6 @@ class BaseAnnotator(ABC):
 
     requires_full_document = False
 
-    def extract(self, text: str):
-        raise NotImplementedError
+    @abstractmethod
+    def extract(self, text: str) -> list[dict]:
+        pass
